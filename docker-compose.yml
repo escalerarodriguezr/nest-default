@@ -1,0 +1,41 @@
+version: '3.6'
+
+services:
+  nest-api:
+    container_name: nest-api
+    build:
+      context: ./etc/node
+      args:
+        UID: $U_ID
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./:/app
+    user: "appuser"
+    working_dir: /app
+    command: tail -f /dev/null
+    networks:
+      - nest-api
+
+  nest-api-db:
+    container_name: nest-api-db
+    build:
+      context: ./etc/database
+    ports:
+      - 36000:3306
+    environment:
+      MYSQL_DATABASE: nest-api_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+    command: [ 'mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci' ]
+    volumes:
+      - nest-api-db-data:/var/lib/mysql
+    networks:
+      - nest-api
+
+volumes:
+  nest-api-db-data:
+
+networks:
+  nest-api:
